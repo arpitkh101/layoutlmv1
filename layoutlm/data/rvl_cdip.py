@@ -82,7 +82,7 @@ class CdipProcessor(DataProcessor):
         return self._create_examples(lines, mode)
 
     def read_hocr_file(self, data_dir, file):
-        hocr_file = os.path.join(data_dir, "images", file[:-4] + ".xml")
+        hocr_file = os.path.join(data_dir,file)
         text_buffer = []
         bbox_buffer = []
         try:
