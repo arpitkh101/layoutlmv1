@@ -81,39 +81,69 @@ class CdipProcessor(DataProcessor):
                 lines.append([text, bbox, label])
         return self._create_examples(lines, mode)
 
+#     def read_hocr_file(self, data_dir, file):
+#         hocr_file = os.path.join(data_dir,file)
+#         text_buffer = []
+#         bbox_buffer = []
+#         try:
+#             doc = html.parse(hocr_file)
+#         except AssertionError:
+#             logger.warning(
+#                 "%s is empty or its format is unacceptable. Skipped.", hocr_file
+#             )
+#             return [], []
+#         for page in doc.xpath("//*[@class='ocr_page']"):
+#             page_bbox = [int(x) for x in get_prop(page, "bbox").split()]
+#             width, height = page_bbox[2], page_bbox[3]
+#             for word in doc.xpath("//*[@class='ocrx_word']"):
+#                 textnodes = word.xpath(".//text()")
+#                 s = "".join([text for text in textnodes])
+#                 text = re.sub(r"\s+", " ", s).strip()
+#                 if text:
+#                     text_buffer.append(text)
+#                     bbox = [int(x) for x in get_prop(word, "bbox").split()]
+#                     bbox = [
+#                         bbox[0] / width,
+#                         bbox[1] / height,
+#                         bbox[2] / width,
+#                         bbox[3] / height,
+#                     ]
+#                     bbox = [int(x * 1000) for x in bbox]
+#                     bbox_buffer.append(bbox)
+#         return) text_buffer, bbox_buffer
+
     def read_hocr_file(self, data_dir, file):
+        
         hocr_file = os.path.join(data_dir,file)
         text_buffer = []
         bbox_buffer = []
         try:
-            doc = html.parse(hocr_file)
+            with open(hocr_file,'r') as f:
+                data = json.load(f)
         except AssertionError:
             logger.warning(
                 "%s is empty or its format is unacceptable. Skipped.", hocr_file
             )
-            return [], []
-        for page in doc.xpath("//*[@class='ocr_page']"):
-            page_bbox = [int(x) for x in get_prop(page, "bbox").split()]
-            width, height = page_bbox[2], page_bbox[3]
-            for word in doc.xpath("//*[@class='ocrx_word']"):
-                textnodes = word.xpath(".//text()")
-                s = "".join([text for text in textnodes])
-                text = re.sub(r"\s+", " ", s).strip()
-                if text:
-                    text_buffer.append(text)
-                    bbox = [int(x) for x in get_prop(word, "bbox").split()]
-                    bbox = [
-                        bbox[0] / width,
-                        bbox[1] / height,
-                        bbox[2] / width,
-                        bbox[3] / height,
+            
+        width, height = data['width'], data['height']
+        text_buffer = data'text_list']
+
+        boxes = data['bbox_list']
+
+        for box in boxes:
+            bbox = [
+                        box[0] / width,
+                        box[1] / height,
+                        box[2] / width,
+                        box[3] / height,
                     ]
-                    bbox = [int(x * 1000) for x in bbox]
-                    bbox_buffer.append(bbox)
+            bbox = [int(x * 1000) for x in bbox]
+            bbox_buffer.append(bbox)
+
         return text_buffer, bbox_buffer
 
     def get_labels(self):
-        return list(map(str, list(range(16))))
+        return list(map(str, list(range(8))))
 
     def _create_examples(self, lines, mode):
         """Creates examples for the training and dev sets."""
