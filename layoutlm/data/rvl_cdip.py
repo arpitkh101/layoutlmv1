@@ -126,7 +126,7 @@ class CdipProcessor(DataProcessor):
             )
             
         width, height = data['width'], data['height']
-        text_buffer = data'text_list']
+        text_buffer = data['text_list']
 
         boxes = data['bbox_list']
 
@@ -143,7 +143,7 @@ class CdipProcessor(DataProcessor):
         return text_buffer, bbox_buffer
 
     def get_labels(self):
-        return list(map(str, list(range(8))))
+        return list(map(str, list(range(10))))
 
     def _create_examples(self, lines, mode):
         """Creates examples for the training and dev sets."""
@@ -303,7 +303,7 @@ def load_and_cache_examples(args, tokenizer, mode="train"):
         features = torch.load(cached_features_file)
     else:
         logger.info("Creating features from dataset file at %s", args.data_dir)
-        label_list = processor.get_labels()
+        label_list = list(map(str, list(range(args.n_labels))))
         examples = processor.get_examples(args.data_dir, mode)
         features = convert_examples_to_features(
             examples,

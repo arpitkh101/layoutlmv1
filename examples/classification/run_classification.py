@@ -526,6 +526,12 @@ def main():
         help="For distributed training: local_rank",
     )
     parser.add_argument(
+        "--n_labels",
+        type=int,
+        required=True,
+        help="For distributed training: local_rank",
+    )
+    parser.add_argument(
         "--server_ip", type=str, default="", help="For distant debugging."
     )
     parser.add_argument(
@@ -569,6 +575,7 @@ def main():
         device = torch.device("cuda", args.local_rank)
         torch.distributed.init_process_group(backend="nccl")
         args.n_gpu = 1
+
     args.device = device
 
     # Setup logging
@@ -590,7 +597,7 @@ def main():
     set_seed(args)
 
     processor = CdipProcessor()
-    label_list = processor.get_labels()
+    label_list = list(map(str, list(range(args.n_labels))))
     num_labels = len(label_list)
 
     # Load pretrained model and tokenizer
@@ -600,7 +607,7 @@ def main():
     args.model_type = args.model_type.lower()
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     config = config_class.from_pretrained(
-        args.config_name if args.config_name else args.model_name_or_path,
+            args.config_name if args.config_name else args.model_name_or_path,
         num_labels=num_labels,
     )
     tokenizer = tokenizer_class.from_pretrained(
